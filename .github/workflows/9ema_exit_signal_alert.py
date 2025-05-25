@@ -4,9 +4,9 @@ import requests
 import time
 import os
 
-# Telegram credentials
-TELEGRAM_BOT_TOKEN = ''
-TELEGRAM_CHAT_ID = 'YOUR_TELEGRAM_CHAT_ID'
+# Telegram setup
+TELEGRAM_TOKEN = os.getenv("SWINGTRADE_TELEGRAM_TOKEN")
+TELEGRAM_CHAT_ID = os.getenv("SWINGTRADE_TELEGRAM_CHAT_ID")
 
 # List of Nifty 50 stocks (symbols on Yahoo Finance)
 nifty50_symbols = [
