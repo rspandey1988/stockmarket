@@ -2,7 +2,7 @@ name: Weinstein Alert Bot
 
 on:
   schedule:
-    - cron: "30 21 * * *"  # Runs every day at 3:00 AM IST
+    - cron: "0 0 * * *"  # Runs every day at 12:00 AM IST
   workflow_dispatch:       # Allows manual triggering
 
 jobs:
