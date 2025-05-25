@@ -1,0 +1,26 @@
+name: Run Weinstein Bot
+
+on:
+  schedule:
+    - cron: '0 5 * * *'  # Runs daily at 5 AM UTC
+  workflow_dispatch:     # Manual trigger
+
+jobs:
+  run-bot:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v3
+
+    - name: Build Docker image
+      run: docker build -t weinstein-bot .
+
+    - name: Run container
+      env:
+        TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+        TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+      run: docker run --rm \
+        -e TELEGRAM_TOKEN \
+        -e TELEGRAM_CHAT_ID \
+        weinstein-bot
