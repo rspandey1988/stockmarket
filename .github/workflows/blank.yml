@@ -1,26 +1,31 @@
-name: Run Weinstein Bot
+name: Weinstein Alert Bot
 
 on:
   schedule:
-    - cron: '0 5 * * *'  # Runs daily at 5 AM UTC
-  workflow_dispatch:     # Manual trigger
+    - cron: "30 21 * * *"  # Runs every weekday at 9:00 AM UTC
+  workflow_dispatch:       # Allows manual triggering
 
 jobs:
-  run-bot:
+  run-alert-bot:
     runs-on: ubuntu-latest
 
+    env:
+      TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+      TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+
     steps:
-    - name: Checkout repo
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Build Docker image
-      run: docker build -t weinstein-bot .
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
 
-    - name: Run container
-      env:
-        TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
-        TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-      run: docker run --rm \
-        -e TELEGRAM_TOKEN \
-        -e TELEGRAM_CHAT_ID \
-        weinstein-bot
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install yfinance pandas numpy requests
+
+      - name: Run alert script
+        run: python updated_buy_on_stage2_sell_on_stage3.py
