@@ -9,7 +9,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy script
-COPY run.py .
+COPY updated_buy_on_stage2_sell_on_stage3.py .
 
 # Run the script
-CMD ["python", "run.py"]
+CMD ["python", "updated_buy_on_stage2_sell_on_stage3.py"]
