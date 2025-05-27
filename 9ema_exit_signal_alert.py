@@ -2,13 +2,14 @@ import yfinance as yf
 import pandas as pd
 import requests
 import logging
+import os
 
 # Configure logging for detailed output
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-# Telegram credentials
-SWINGTRADE_TELEGRAM_BOT_TOKEN = "7307053084:AAE0IbezWmDvn0iO0oqHWxcHT6YGoAdevs0"
-SWINGTRADE_TELEGRAM_CHAT_ID = '5046398778'
+# Telegram setup
+SWINGTRADE_TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_TOKEN")
+SWINGTRADE_TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
 # List of Nifty 50 stocks
 nifty50_symbols = [
