@@ -8,8 +8,8 @@ import os
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Telegram setup
-SWINGTRADE_TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_TOKEN")
-SWINGTRADE_TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
+SWINGTRADE_TELEGRAM_BOT_TOKEN = os.getenv("SWINGTRADE_TELEGRAM_BOT_TOKEN")
+SWINGTRADE_TELEGRAM_CHAT_ID = os.getenv("SWINGTRADE_TELEGRAM_CHAT_ID")
 
 # List of Nifty 50 stocks
 nifty50_symbols = [
