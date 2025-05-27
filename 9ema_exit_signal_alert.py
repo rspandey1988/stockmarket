@@ -144,16 +144,18 @@ SWINGTRADE_TELEGRAM_CHAT_ID = os.getenv("SWINGTRADE_TELEGRAM_CHAT_ID")
 
 # List of Nifty 50 stocks
 nifty50_symbols = [
-    "RELIANCE.NS", "TCS.NS", "INFY.NS", "HDFCBANK.NS", "ICICIBANK.NS",
-    "HINDUNILVR.NS", "KOTAKBANK.NS", "SBIN.NS", "AXISBANK.NS", "LT.NS",
-    "HDFC.NS", "MARUTI.NS", "BAJFINANCE.NS", "HCLTECH.NS", "WIPRO.NS",
-    "ADANIPORTS.NS", "TITAN.NS", "NESTLEIND.NS", "TATASTEEL.NS", "DIVISLAB.NS",
-    "M&M.NS", "DRREDDY.NS", "BAJAJ-AUTO.NS", "HEROMOTOCO.NS", "CIPLA.NS",
-    "EICHERMOT.NS", "SHREECEM.NS", "TATAMOTORS.NS", "ULTRACEMCO.NS", "JSWSTEEL.NS",
-    "HDFCLIFE.NS", "SBILIFE.NS", "INDUSINDBK.NS", "BPCL.NS", "IOCL.NS",
-    "POWERGRID.NS", "TATACONSUM.NS", "ADANIGREEN.NS", "APOLLOHOSP.NS",
-    "BRITANNIA.NS", "HINDALCO.NS", "NESTLEIND.NS", "TATAPOWER.NS", "UPL.NS",
-    "VEDL.NS", "COALINDIA.NS"
+    "APLAPOLLO.NS",        # APL Apollo Tubes Ltd
+    "GARWAREHITECH.NS",    # Garware Hi-Tech Films Ltd
+    "ABSLAMC.NS",          # Aditya Birla Sun Life AMC Ltd
+    "TDPOWER.NS",          # TD Power Systems Ltd
+    "JMFINANCIL.NS",       # JM Financial Ltd
+    "WOCKPHARMA.NS",       # Wockhardt Ltd
+    "KITEX.NS",            # Kitex Garments Ltd
+    "CARERATING.NS",       # Care Ratings Ltd
+    "MANAPPURAM.NS",       # Manappuram Finance Ltd
+    "CHOLAFIN.NS",         # Cholamandalam Investment and Finance Company Ltd
+    "HDFCLIFE.NS",         # HDFC Life Insurance Company Ltd
+    "AUBANK.NS"            # AU Small Finance Bank Ltd
 ]
 
 def send_telegram_message(message):
