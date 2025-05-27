@@ -1,3 +1,119 @@
+"""
+Weinstein-Based Weekly Trading Strategy
+Overview
+This strategy is a rules-based, technical indicator-driven approach designed for weekly trading of stocks, specifically applied to the Nifty 50 universe. It aims to identify high-probability buy and sell signals based on the combination of moving averages, trend slopes, and breakdown signals, with real-time alerts via Telegram.
+
+Core Components
+1. Trend Detection Using WMA and EMA
+
+Weighted Moving Average (WMA):
+Calculated over the last 30 weeks, giving more weight to recent prices to detect the underlying trend.  
+
+EMA9 (Exponential Moving Average):
+A short-term trend indicator that reacts faster to recent price changes, helping to confirm the trend direction.
+
+2. Slope of WMA
+
+WMA Slope:
+The first difference of the WMA, indicating the trend's momentum. A positive slope suggests an uptrend; negative indicates a downtrend.
+
+Trading Rules
+Buy Signal Conditions
+A buy is triggered when all of the following conditions are met:
+
+
+Price above EMA9:
+The current weekly closing price exceeds the short-term EMA, indicating upward momentum.
+
+
+
+Price above WMA:
+The weekly closing price is above the long-term trend indicator, reinforcing upward trend presence.
+
+
+
+Positive WMA Slope:
+The WMA is trending upward, suggesting increasing bullish momentum.
+
+
+
+Action:  
+
+
+Buy at current weekly close price if these conditions are satisfied, provided no current position exists.
+
+Position sizing:
+Allocate the maximum possible shares with the available cash.
+
+Notification:  
+
+
+Sends a Telegram message indicating a buy signal with the ticker and buy price.
+
+Sell Signal Conditions
+The exit is triggered under a breakdown scenario:
+
+
+Tracking breakdown candle:
+When in a position, if the weekly close drops below the EMA9, record the lowest low during this period as a breakdown candle.
+
+
+
+Breakdown confirmation:
+If, after a breakdown candle, the weekly close falls below this recorded low, it signals a bearish breakdown.
+
+
+
+Action:  
+
+
+
+Sell all held shares at the current weekly close price.
+
+Record profit or loss.
+
+Send a Telegram message indicating the sell with the ticker and sell price.
+
+
+
+Final Position Closure:  
+
+
+If at the end of the data, the position is still open, the system sells at the last available close price.
+
+Additional Features
+
+Breakdown Candle Tracking:
+The lowest low during the period when the weekly close drops below EMA9 is used as a threshold. Falling below this indicates a bearish breakdown.
+
+
+
+Progressive Exit Strategy:
+The exit is triggered only after a confirmed breakdown below the recorded low, reducing false break signals.
+
+
+
+Risk Management and Assumptions
+
+Position sizing is based solely on available capital and share price.
+
+The strategy relies on weekly data, making it suitable for longer-term traders.
+
+Alerts via Telegram keep the trader informed about all buy and sell signals.
+
+No explicit stop-loss or take-profit levels are implemented; the system relies on breakdown signals for exits.
+
+Summary
+This Weinstein-based weekly trading strategy combines trend-following indicators with a breakdown confirmation to identify high-probability entry and exit points. By focusing on the trend's momentum and sudden breakdowns, it aims to capture sustained upward moves while avoiding false signals. The use of Telegram alerts ensures timely execution and monitoring.
+
+Would you like me to craft this into a formal documentation or presentation?
+
+
+Regenerate
+Copy message
+
+
+"""
 import yfinance as yf
 import pandas as pd
 import numpy as np
@@ -6,8 +122,8 @@ from datetime import datetime, timedelta
 import os
 
 # --- Telegram setup ---
-TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
-TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
+TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_TOKEN")
+CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
 def send_telegram_message(message):
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
