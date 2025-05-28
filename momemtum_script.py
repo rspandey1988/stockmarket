@@ -6,8 +6,8 @@ import os
 from datetime import datetime
 
 # Read Telegram credentials from environment variables
-TELEGRAM_BOT_TOKEN = "7989772782:AAEVk-uSOKetgQ16iYH_2t46-e5DSYylxRk"
-CHAT_ID = os.getenv('CHAT_ID')
+TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_TOKEN")
+CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
 def send_telegram_message(message):
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
