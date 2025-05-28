@@ -155,7 +155,7 @@ nifty50_symbols = [
     "MANAPPURAM.NS",       # Manappuram Finance Ltd
     "CHOLAFIN.NS",         # Cholamandalam Investment and Finance Company Ltd
     "HDFCLIFE.NS",         # HDFC Life Insurance Company Ltd
-    "AUBANK.NS"            # AU Small Finance Bank Ltd
+    "AUBANK.NS",           # AU Small Finance Bank Ltd
     "SUPREMEIND.NS"        # Supreme Industries Ltd
 ]
 
