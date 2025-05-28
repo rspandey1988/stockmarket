@@ -156,6 +156,7 @@ nifty50_symbols = [
     "CHOLAFIN.NS",         # Cholamandalam Investment and Finance Company Ltd
     "HDFCLIFE.NS",         # HDFC Life Insurance Company Ltd
     "AUBANK.NS"            # AU Small Finance Bank Ltd
+    "SUPREMEIND.NS"        # Supreme Industries Ltd
 ]
 
 def send_telegram_message(message):
