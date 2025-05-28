@@ -3,10 +3,11 @@ import pandas as pd
 import numpy as np
 import requests
 from datetime import datetime, timedelta
+import os
 
 # --- Telegram setup ---
-TELEGRAM_BOT_TOKEN = "7307053084:AAE0IbezWmDvn0iO0oqHWxcHT6YGoAdevs0"
-CHAT_ID = "5046398778"
+TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_TOKEN")
+CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
 def send_telegram_message(message):
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
