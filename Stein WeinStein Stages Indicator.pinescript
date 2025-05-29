@@ -1,0 +1,42 @@
+//@version=5
+indicator("Stan Weinstein Stages", overlay=true)
+
+// User inputs
+ma10Weeks = input.int(10, "10-week MA", minval=1)
+ma30Weeks = input.int(30, "30-week MA", minval=1)
+ma40Weeks = input.int(40, "40-week MA", minval=1)
+
+// Calculate moving averages (approximated for daily data)
+ma10 = ta.sma(close, ma10Weeks * 5)
+ma30 = ta.sma(close, ma30Weeks * 5)
+ma40 = ta.sma(close, ma40Weeks * 5)
+
+// Determine stage
+var int stage = 0
+if close > ma30 and ma30 > ma40
+    stage := 2 // Uptrend
+else if close < ma30 and ma30 < ma40
+    stage := 4 // Downtrend
+else
+    stage := 1 // Neutral (Stage 1 & 3)
+
+// Colors for each stage
+col_stage1 = color.new(color.blue, 85)   // Neutral
+col_stage2 = color.new(color.green, 85)  // Uptrend
+col_stage4 = color.new(color.red, 85)    // Downtrend
+
+// Set background color based on stage
+bgcolor(stage == 1 ? col_stage1 :stage == 2 ? col_stage2 :stage == 4 ? col_stage4 : na)
+
+// Plot moving averages
+plot(ma10, color=color.gray, linewidth=1)
+plot(ma30, color=color.blue, linewidth=2)
+plot(ma40, color=color.gray, linewidth=1)
+
+// Single label at the top
+var label stageLabel = na
+if na(stageLabel)
+    stageLabel := label.new(bar_index, high, "", style=label.style_label_down, color=color.black, textcolor=color.white, size=size.normal)
+
+label.set_xy(stageLabel, bar_index, high)
+label.set_text(stageLabel, "Stage " + str.tostring(stage))
