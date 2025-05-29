@@ -140,12 +140,8 @@ import matplotlib.pyplot as plt
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Environment variables
-#TELEGRAM_BOT_TOKEN = os.getenv("SWINGTRADE_TELEGRAM_BOT_TOKEN")
-#TELEGRAM_CHAT_ID = os.getenv("SWINGTRADE_TELEGRAM_CHAT_ID")
-
-# Environment variables for Telegram
-TELEGRAM_BOT_TOKEN = "7634011883:AAFuBJmueacbc76qjR5o01lEpVnxtE-ALEg"
-TELEGRAM_CHAT_ID = "5046398778"
+TELEGRAM_BOT_TOKEN = os.getenv("SWINGTRADE_TELEGRAM_BOT_TOKEN")
+TELEGRAM_CHAT_ID = os.getenv("SWINGTRADE_TELEGRAM_CHAT_ID")
 
 # Cache directory
 CACHE_DIR = 'cache'
