@@ -1,10 +1,24 @@
+import os
+import shutil
 import yfinance as yf
 import pandas as pd
 import requests
 import logging
-import os
 import glob
 import matplotlib.pyplot as plt
+import matplotlib
+import matplotlib.font_manager as fm
+
+# Set default font to avoid font matching delays
+matplotlib.rcParams['font.family'] = 'DejaVu Sans'
+
+# Delete matplotlib font cache to force rebuild
+cache_dir = os.path.expanduser("~/.cache/matplotlib")
+font_cache_file = os.path.join(cache_dir, "fontlist-v310.json")  # adjust if needed
+
+if os.path.exists(font_cache_file):
+    os.remove(font_cache_file)
+    print(f"Deleted font cache: {font_cache_file}")
 
 # Configure detailed logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -90,6 +104,12 @@ def check_breakdown(df):
         logging.warning("Missing 'Close' or 'Low' columns in data.")
         return False, None
 
+    # Ensure 'Close' and 'Low' are Series
+    if isinstance(df['Close'], pd.DataFrame):
+        df['Close'] = df['Close'].squeeze()
+    if isinstance(df['Low'], pd.DataFrame):
+        df['Low'] = df['Low'].squeeze()
+
     # Convert to numeric safely
     df['Close'] = pd.to_numeric(df['Close'], errors='coerce')
     df['Low'] = pd.to_numeric(df['Low'], errors='coerce')
@@ -147,7 +167,7 @@ def process_stock(ticker, name):
         date_of_candle = candle.name.strftime('%Y-%m-%d')
         latest_close = df['Close'].iloc[-1]
         latest_date = df.index[-1].strftime('%Y-%m-%d')
-        
+
         logging.info(f"Latest close for {name} ({ticker}): {latest_close}")
 
         if latest_close < low_breakdown_candle:
@@ -192,27 +212,6 @@ if __name__ == "__main__":
     print("\nSummary of Exit Signals:\n")
     print(summary_df)
 
-    # Plot with highlighting
-    fig, ax = plt.subplots(figsize=(14, max(6, len(summary_df) * 0.5)))
-    ax.axis('off')
-    table = ax.table(cellText=summary_df.values,
-                     colLabels=summary_df.columns,
-                     cellLoc='center',
-                     loc='center')
-
-    table.auto_set_font_size(False)
-    table.set_fontsize(10)
-
-    # Highlight rows where Exit Triggered == 'Yes'
-    for i, row in enumerate(summary_df.itertuples(index=False)):
-        if row._2 == 'Yes':  # 'Exit Triggered' column
-            for j in range(len(summary_df.columns)):
-                cell = table[(i + 1, j)]
-                cell.set_facecolor('red')
-                cell.set_text_props(color='white')
-
-    #plt.title('Stock Exit Signal Summary', fontsize=14)
-    #plt.tight_layout()
-    #plt.show()
+    # Note: Removed plotting code as requested
 
     logging.info("Analysis complete.")
