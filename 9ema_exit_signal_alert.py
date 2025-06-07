@@ -24,8 +24,8 @@ if os.path.exists(font_cache_file):
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Environment variables
-TELEGRAM_BOT_TOKEN = os.getenv("SWINGTRADE_TELEGRAM_BOT_TOKEN")
-TELEGRAM_CHAT_ID = os.getenv("SWINGTRADE_TELEGRAM_CHAT_ID")
+TELEGRAM_BOT_TOKEN = "7634011883:AAFuBJmueacbc76qjR5o01lEpVnxtE-ALEg"
+TELEGRAM_CHAT_ID = "5046398778"
 
 # Cache directory
 CACHE_DIR = 'cache'
