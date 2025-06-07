@@ -4,9 +4,6 @@ import requests
 import yfinance as yf
 import pandas as pd
 import logging
-import matplotlib.pyplot as plt
-import matplotlib
-import matplotlib.font_manager as fm
 import ta
 
 # Set default font to avoid font matching delays
