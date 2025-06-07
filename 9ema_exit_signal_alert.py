@@ -1,13 +1,13 @@
 import os
-import shutil
+import glob
+import requests
 import yfinance as yf
 import pandas as pd
-import requests
 import logging
-import glob
 import matplotlib.pyplot as plt
 import matplotlib
 import matplotlib.font_manager as fm
+import ta
 
 # Set default font to avoid font matching delays
 matplotlib.rcParams['font.family'] = 'DejaVu Sans'
@@ -34,8 +34,21 @@ if not os.path.exists(CACHE_DIR):
 
 # Dictionary of stock tickers to names
 nifty50_tickers = {
-    "AAPL": "Apple Stock",
+    "APLAPOLLO.NS": "Apollo Hospitals",
+    "GRWRHITECH.NS": "G R Woth Tech",
+    "ABSLAMC.NS": "Aditya Birla Sun Life AMC",
+    "TDPOWERSYS.NS": "Tata Power Sectors",
+    "JMFINANCIL.NS": "JM Financial",
+    "WOCKPHARMA.NS": "Wockhardt Pharma",
+    "KITEX.NS": "Kitex Garments",
+    "CARERATING.NS": "CARE Ratings",
+    "MANAPPURAM.NS": "Manappuram Finance",
+    "CHOLAFIN.NS": "Cholamandalam Finance",
+    "HDFCLIFE.NS": "HDFC Life Insurance",
+    "AUBANK.NS": "AU Small Finance Bank",
+    "SUPREMEIND.NS": "Supreme Industries"
 }
+
 
 def clear_cache():
     cache_files = glob.glob(os.path.join(CACHE_DIR, '*.csv'))
@@ -45,6 +58,7 @@ def clear_cache():
             logging.info(f"Deleted cache file: {file_path}")
         except Exception as e:
             logging.warning(f"Failed to delete {file_path}: {e}")
+
 
 def send_telegram_message(message):
     url = f'https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage'
@@ -58,12 +72,29 @@ def send_telegram_message(message):
         logging.error(f"Error sending Telegram message: {e}")
         return False
 
+
 def load_cached_data(symbol):
     filepath = os.path.join(CACHE_DIR, f"{symbol}.csv")
     if os.path.exists(filepath):
         try:
             df = pd.read_csv(filepath, index_col=0, parse_dates=True)
-            logging.debug(f"Loaded cached data for {symbol} with {len(df)} rows.")
+            # Verify and fix index if necessary
+            if not pd.api.types.is_datetime64_any_dtype(df.index):
+                # Get index as strings to filter valid dates
+                index_strs = df.index.astype(str)
+                valid_dates = []
+                for val in index_strs:
+                    try:
+                        # Try parsing each index value
+                        pd.to_datetime(val)
+                        valid_dates.append(val)
+                    except:
+                        # skip invalid entries
+                        pass
+                # Keep only valid date entries
+                df = df.loc[[idx in valid_dates for idx in index_strs]].copy()
+                # Convert index to datetime
+                df.index = pd.to_datetime(df.index)
             return df
         except Exception as e:
             logging.warning(f"Failed to load cache for {symbol}: {e}")
@@ -71,10 +102,12 @@ def load_cached_data(symbol):
         logging.debug(f"No cache found for {symbol}")
     return None
 
+
 def save_cache_data(symbol, df):
     filepath = os.path.join(CACHE_DIR, f"{symbol}.csv")
     df.to_csv(filepath)
     logging.info(f"Saved cache for {symbol} with {len(df)} rows.")
+
 
 def fetch_data_for_symbol(symbol):
     df_cached = load_cached_data(symbol)
@@ -93,53 +126,66 @@ def fetch_data_for_symbol(symbol):
         logging.error(f"Error fetching data for {symbol}: {e}")
         return pd.DataFrame()
 
+
 def check_breakdown(df):
-    """Check for EMA9 crossover indicating breakdown."""
+    """Check for EMA9 crossover indicating breakdown using ta library."""
     if len(df) < 10:
         logging.debug(f"Not enough data ({len(df)}) to check for breakdown.")
         return False, None
 
-    # Check columns existence
-    if 'Close' not in df.columns or 'Low' not in df.columns:
-        logging.warning("Missing 'Close' or 'Low' columns in data.")
+    if not isinstance(df, pd.DataFrame):
+        logging.warning("Provided data is not a DataFrame.")
         return False, None
 
-    # Ensure 'Close' and 'Low' are Series
-    if isinstance(df['Close'], pd.DataFrame):
-        df['Close'] = df['Close'].squeeze()
-    if isinstance(df['Low'], pd.DataFrame):
-        df['Low'] = df['Low'].squeeze()
+    expected_cols = {'Close', 'Low'}
+    if not expected_cols.issubset(df.columns):
+        logging.warning(f"DataFrame missing expected columns. Found columns: {df.columns}")
+        return False, None
 
-    # Convert to numeric safely
-    df['Close'] = pd.to_numeric(df['Close'], errors='coerce')
-    df['Low'] = pd.to_numeric(df['Low'], errors='coerce')
+    try:
+        close_series = pd.to_numeric(df['Close'], errors='coerce')
+        low_series = pd.to_numeric(df['Low'], errors='coerce')
+    except Exception as e:
+        logging.warning(f"Failed to convert price columns to numeric: {e}")
+        return False, None
 
-    # Drop NaNs
-    df.dropna(subset=['Close', 'Low'], inplace=True)
+    # Drop NaN values
+    df_clean = df.loc[close_series.notna() & low_series.notna()].copy()
+    df_clean['Close'] = close_series.loc[df_clean.index]
+    df_clean['Low'] = low_series.loc[df_clean.index]
 
-    # Ensure index is datetime
-    if not pd.api.types.is_datetime64_any_dtype(df.index):
-        df.index = pd.to_datetime(df.index)
+    # Ensure the index is datetime
+    if not pd.api.types.is_datetime64_any_dtype(df_clean.index):
+        df_clean.index = pd.to_datetime(df_clean.index)
 
-    df['EMA9'] = df['Close'].ewm(span=9, adjust=False).mean()
+    # Calculate EMA9 using ta library
+    df_clean['EMA9'] = ta.trend.ema_indicator(df_clean['Close'], window=9)
 
-    for i in range(1, len(df)):
-        prev_close = df['Close'].iloc[i - 1]
-        prev_ema = df['EMA9'].iloc[i - 1]
-        curr_close = df['Close'].iloc[i]
-        date = df.index[i]
-        logging.debug(f"Date: {date.date()}, Prev Close: {prev_close}, Prev EMA: {prev_ema}, Curr Close: {curr_close}")
+    # Check for crossover
+    for i in range(1, len(df_clean)):
+        prev_close = df_clean['Close'].iloc[i - 1]
+        prev_ema = df_clean['EMA9'].iloc[i - 1]
+        curr_close = df_clean['Close'].iloc[i]
+        curr_ema = df_clean['EMA9'].iloc[i]
+        date = df_clean.index[i]
 
-        if prev_close >= prev_ema and curr_close <= prev_ema:
-            logging.info(f"Breakdown detected on {date.date()}")
-            return True, df.iloc[i]
+        # Detect crossover from above/equal to below
+        if prev_close > prev_ema and curr_close < curr_ema:
+            logging.info(f"Breakdown detected on {date.date()}: "
+                         f"prev_close={prev_close}, prev_ema={prev_ema}, "
+                         f"curr_close={curr_close}, curr_ema={curr_ema}")
+            return True, {
+                'Low': df_clean['Low'].iloc[i],
+                'date': date
+            }
+
     return False, None
 
-# Prepare summary list
-summary_list = []
+
+
 
 def process_stock(ticker, name):
-    """Process each stock and update summary info"""
+    """Process each stock and update the summary info."""
     record = {
         'Stock': name,
         'Ticker': ticker,
@@ -156,25 +202,54 @@ def process_stock(ticker, name):
         logging.warning(f"No data to process for {name} ({ticker})")
         return record
 
+    # Ensure index is datetime
+    if not pd.api.types.is_datetime64_any_dtype(df.index):
+        try:
+            df.index = pd.to_datetime(df.index)
+        except Exception as e:
+            logging.warning(f"Failed to convert index for {name} ({ticker}): {e}")
+            return record
+
     # Check if enough data exists
     if len(df) < 10:
         logging.info(f"Not enough data ({len(df)}) for {name} ({ticker}) to perform analysis.")
         return record
 
-    breakdown, candle = check_breakdown(df)
+    # Check for breakdown
+    breakdown, candle_info = check_breakdown(df)
     if breakdown:
-        low_breakdown_candle = candle['Low']
-        date_of_candle = candle.name.strftime('%Y-%m-%d')
-        latest_close = df['Close'].iloc[-1]
-        latest_date = df.index[-1].strftime('%Y-%m-%d')
+        low_value = float(candle_info['Low'])  # ensure scalar float
+        date_of_candle = candle_info['date'].strftime('%Y-%m-%d')
 
-        logging.info(f"Latest close for {name} ({ticker}): {latest_close}")
+        try:
+            latest_close = float(df['Close'].iloc[-1])
+        except (ValueError, TypeError) as e:
+            logging.warning(f"Invalid latest close price for {name} ({ticker}): {e}")
+            return record
 
-        if latest_close < low_breakdown_candle:
+        latest_date = df.index[-1]
+        latest_date_str = latest_date.strftime('%Y-%m-%d') if isinstance(latest_date, pd.Timestamp) else 'Unknown'
+
+        logging.info(f"Latest close for {name} ({ticker}): {latest_close}")# Fetch historical data for the last 5 days (to handle weekends/holidays)
+        stock = yf.Ticker(ticker)
+        hist = stock.history(period="5d")
+
+        # Drop any rows without closing price
+        hist = hist.dropna(subset=["Close"])
+
+        # Get the most recent closing price
+        latest_close = hist["Close"][-1]
+        latest_date = hist.index[-1].date()
+
+        print(f"Latest trading day: {latest_date}")
+        print(f"{ticker} closing price: {latest_close:.2f}")
+
+        # Compare latest close with breakdown low
+        if latest_close < low_value:
             message = (
                 f"🚨 Exit Alert for {name} ({ticker})\n"
                 f"Breakdown Candle Date: {date_of_candle}\n"
-                f"Breakdown Candle Low: {low_breakdown_candle}\n"
+                f"Breakdown Candle Low: {low_value}\n"
                 f"Latest Close: {latest_close}\n"
                 f"Date: {latest_date}"
             )
@@ -182,25 +257,35 @@ def process_stock(ticker, name):
             sent = send_telegram_message(message)
             if sent:
                 logging.info(f"Telegram alert sent for {name} ({ticker})")
+                record['Exit Triggered'] = 'Yes'
+                record['Alert Sent'] = 'Yes'
             else:
                 logging.warning(f"Failed to send Telegram alert for {name} ({ticker})")
+                record['Exit Triggered'] = 'Yes'
+                record['Alert Sent'] = 'No'
+
+            # Update record with details
             record.update({
-                'Exit Triggered': 'Yes',
-                'Alert Sent': 'Yes' if sent else 'No',
                 'Breakdown Candle Date': date_of_candle,
-                'Breakdown Candle Low': low_breakdown_candle,
+                'Breakdown Candle Low': low_value,
                 'Current Close Price': latest_close,
-                'Date': latest_date
+                'Date': latest_date_str
             })
         else:
-            logging.info(f"No trigger: latest close {latest_close} is not below breakdown low {low_breakdown_candle}")
+            logging.info(f"No trigger: latest close {latest_close} is not below breakdown low {low_value}")
     else:
         logging.info(f"No breakdown detected for {name} ({ticker})")
+
     return record
 
+
 if __name__ == "__main__":
+    # Optional: clear cache before starting
+    # clear_cache()
 
     logging.info("Starting stock analysis with detailed logs...")
+    summary_list = []
+
     for ticker, name in nifty50_tickers.items():
         rec = process_stock(ticker, name)
         summary_list.append(rec)
@@ -211,7 +296,5 @@ if __name__ == "__main__":
     # Print the summary
     print("\nSummary of Exit Signals:\n")
     print(summary_df)
-
-    # Note: Removed plotting code as requested
 
     logging.info("Analysis complete.")
