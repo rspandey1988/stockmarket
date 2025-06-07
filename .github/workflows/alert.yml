@@ -1,0 +1,34 @@
+name: Swing Trade Exit Signal uisng 9EMA Bot
+
+on:
+  schedule:
+    - cron: "0 3 * * *"  # Runs every day at 3 AM IST
+  workflow_dispatch:       # Allows manual triggering
+
+jobs:
+  run-alert-bot:
+    runs-on: ubuntu-latest
+
+    env:
+      TELEGRAM_TOKEN: ${{ secrets.SWINGTRADE_TELEGRAM_TOKEN }}
+      TELEGRAM_CHAT_ID: ${{ secrets.SWINGTRADE_TELEGRAM_CHAT_ID }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install yfinance pandas numpy requests
+          pip install matplotlib
+          pip install ta
+          pip install pandas
+
+      - name: Run alert script
+        run: python 9ema_exit_signal_alert.py
