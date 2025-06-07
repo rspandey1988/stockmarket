@@ -1,4 +1,4 @@
-name: Swing Trade Exit Signal uisng 9EMA Bot
+name: Test alert uisng 9EMA Bot
 
 on:
   schedule:
