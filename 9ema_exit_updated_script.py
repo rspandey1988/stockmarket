@@ -46,7 +46,10 @@ nifty50_tickers = {
     "CHOLAFIN.NS": "Cholamandalam Finance",
     "HDFCLIFE.NS": "HDFC Life Insurance",
     "AUBANK.NS": "AU Small Finance Bank",
-    "SUPREMEIND.NS": "Supreme Industries"
+    "SUPREMEIND.NS": "Supreme Industries",
+    "SUNDARMFIN.NS": "Sundaram Finance",
+    "CLSEL.NS" : "Chamanlal Seta",
+    "THYROCARE.NS": "THYROCARE"
 }
 
 
@@ -163,16 +166,15 @@ def check_breakdown(df):
 
     # Check for crossover
     for i in range(1, len(df_clean)):
-        prev_close = df_clean['Close'].iloc[i - 1]
-        prev_ema = df_clean['EMA9'].iloc[i - 1]
         curr_close = df_clean['Close'].iloc[i]
         curr_ema = df_clean['EMA9'].iloc[i]
         date = df_clean.index[i]
 
+        print(f"Date: {date.date()} | Close: {curr_close:.2f} | EMA9: {curr_ema:.2f}")
+
         # Detect crossover from above/equal to below
-        if prev_close > prev_ema and curr_close < curr_ema:
+        if curr_close < curr_ema:
             logging.info(f"Breakdown detected on {date.date()}: "
-                         f"prev_close={prev_close}, prev_ema={prev_ema}, "
                          f"curr_close={curr_close}, curr_ema={curr_ema}")
             return True, {
                 'Low': df_clean['Low'].iloc[i],
