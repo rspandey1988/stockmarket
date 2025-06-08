@@ -31,4 +31,4 @@ jobs:
           pip install pandas
 
       - name: Run alert script
-        run: python 9ema_exit_signal_alert.py
+        run: python 9ema_exit_updated_script.py
