@@ -26,6 +26,8 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %
 # Environment variables
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
+print(TELEGRAM_BOT_TOKEN)
+print(TELEGRAM_CHAT_ID)
 
 # Cache directory
 CACHE_DIR = 'cache'
