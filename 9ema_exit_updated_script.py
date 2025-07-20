@@ -64,7 +64,7 @@ def clear_cache():
 
 
 def send_telegram_message(message):
-    url = f'https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage?chat_id={TELEGRAM_CHAT_ID}&text={message}'
+    url = f'https://api.telegram.org/bot7517845147:AAHEyno5XniFTSBQCXwgpRVc50_ZmkBaxNA/sendMessage?chat_id=-1002845314113&text={message}'
     try:
         response = requests.get(url)
         response.raise_for_status()
