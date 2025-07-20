@@ -31,4 +31,7 @@ jobs:
           pip install pandas
 
       - name: Run alert script
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.SWINGTRADE_TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.SWINGTRADE_TELEGRAM_CHAT_ID }}
         run: python 9ema_exit_updated_script.py
