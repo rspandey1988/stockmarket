@@ -1,5 +1,6 @@
 import os
 import glob
+import matplotlib as ml
 import requests
 import yfinance as yf
 import pandas as pd
@@ -7,7 +8,7 @@ import logging
 import ta
 
 # Set default font to avoid font matching delays
-matplotlib.rcParams['font.family'] = 'DejaVu Sans'
+ml.rcParams['font.family'] = 'DejaVu Sans'
 
 # Delete matplotlib font cache to force rebuild
 cache_dir = os.path.expanduser("~/.cache/matplotlib")
