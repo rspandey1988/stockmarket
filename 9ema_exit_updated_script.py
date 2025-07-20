@@ -307,5 +307,8 @@ if __name__ == "__main__":
     # Print the summary
     print("\nSummary of Exit Signals:\n")
     print(summary_df)
+    sent = send_telegram_messgae(summary_df)
+    if sent:
+        print("\n successfully sent message\n")
 
     logging.info("Analysis complete.")
